@@ -16,3 +16,58 @@ img {
   width: 300px;
   height: 400px;
 }
+
+button, input:focus {
+  outline: none;
+}
+
+button.selectedAlgorithm{
+  border: 3px solid blue;
+}
+
+.visual-container {
+  border: 1px solid black;
+  min-height: 500px;
+}
+
+
+.bars{
+  display:flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+.bar {
+  // background-color: orangered;
+  background-color: grey;
+  border: 3px solid black;
+  margin-left:5px;
+  padding:0 1em;
+
+  display:flex;
+  justify-content:center;
+  align-items: center;
+
+  &::before{
+    content: attr(data-value);
+  }
+
+  transition: 0.2s;
+}
+
+.hidden{
+  opacity:0;
+  transition:0.5s;
+}
+.visible{
+  opacity:1;
+  transition:0.5s;
+}
+
+.appear{
+  display:block;
+  transition:0.5s;
+}
+.disappear{
+  display:none;
+  transition:0.5s;
+}
