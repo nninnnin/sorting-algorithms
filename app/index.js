@@ -24,6 +24,7 @@ const visualizeButton = document.getElementById('visualizeButton');
 const historyButton = document.getElementById('historyButton');
 const history = document.getElementById('history');
 const container = document.getElementById('visual-container');
+let cards;
 
 
 Array.from(buttons.children).forEach((button) => {
@@ -31,7 +32,6 @@ Array.from(buttons.children).forEach((button) => {
         e.preventDefault();
         
         sortingAlgorithm = e.target.id;
-        console.log(sortingAlgorithm);
 
         Array.from(buttons.children).forEach((button) => {
             button.classList.remove('selectedAlgorithm');
@@ -41,7 +41,6 @@ Array.from(buttons.children).forEach((button) => {
     })
 });
 
-// validation
 userInput.addEventListener('keyup', (e) => {
     const input = e.target;
 
@@ -87,7 +86,8 @@ visualizeButton.addEventListener('click', (e) => {
             UIpainter.paint(arr);
             break;
         case 'quick':
-            UIpainter.createCards(arr);
+            cards = UIpainter.createCards(arr);
+            console.log(cards);
             break;
         case 'merge':
             break;
@@ -179,7 +179,6 @@ async function visualizeBubbleSort (operationQueue) {
     for (let i = 0; i < operationQueue.length; i++) {
         const operation = operationQueue[i];
         
-        console.log(operation);
         await UIpainter.select(operation.currentBar, 'yellowgreen');
         await UIpainter.select(operation.currentBar + 1, 'yellowgreen', 1);
         
@@ -207,9 +206,6 @@ async function visualizeInsertionSort (operationQueue) {
 
     for (let i = 0; i < operationQueue.length; i++) {
         const operation = operationQueue[i];
-        console.log(operation);
-
-        
         const currentBar = operation.currentBar;
         
         await UIpainter.select(currentBar, 'yellowgreen');
@@ -258,7 +254,7 @@ async function visualizeMergeSort () {
 }
 
 async function wait (timeout) {
-    timeout = timeout ? timeout : 500;
+    timeout = timeout ? timeout : 300;
     
     return new Promise((resolve, reject) => {
         setTimeout(resolve, timeout);
@@ -266,7 +262,7 @@ async function wait (timeout) {
 }
 
 async function processVisualization (task) {
-    console.log(task.type);
+    console.log(task);
 
     if (task.type === "flag pivot") {
         await UIpainter.markFlag(task.from, task.to, 'pivot');
@@ -283,6 +279,6 @@ async function processVisualization (task) {
     } else if (task.type === 'partitioned') {
         await UIpainter.markFlag(task.from, null, 'pivot');
     } else if (task.type === 'separation') {
-        await UIpainter.separate(task.from, task.to);
+        cards = await UIpainter.separate(task.from, task.to, cards);
     }
 }

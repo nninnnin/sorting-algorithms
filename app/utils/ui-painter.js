@@ -8,9 +8,6 @@ export default {
 
 
     paint : function (arr, algorithm) {
-        // for test
-        // arr = [8,6,2,4,5,10];
-
         const container = document.getElementById('visual-container');
         const bars = document.createElement('div');
         bars.classList.add('bars');
@@ -19,7 +16,7 @@ export default {
         for (let i = 0; i < arr.length; i++) {
             const bar = document.createElement('div');
             bar.classList.add('bar');
-            bar.setAttribute('id', i); // order로 사용하자
+            bar.setAttribute('id', i);
             bar.setAttribute('data-value', arr[i]);
             bar.style.height = arr[i] * 20 + 'px';
             bar.style.order = i;
@@ -50,7 +47,6 @@ export default {
 
             card.classList.add('card');
             card.classList.add(`${CARD_SYMBOLS[randomNumber]}`);
-            // card.setAttribute('data-value', val);
             card.setAttribute('id', index);
 
             const content = document.createElement('div');
@@ -61,6 +57,8 @@ export default {
         });
         
         container.appendChild(cards);
+
+        return cards;
     },
 
     markFlag : async function (remove, create, flagType) {
@@ -78,19 +76,15 @@ export default {
     },
 
     swapCards : async function (cardA, cardB) {
+        if (cardA === cardB) return;
+
         const leftIndex = cardA > cardB ? cardB : cardA;
         const rightIndex = cardA > cardB ? cardA : cardB;
-
-        console.log(leftIndex, rightIndex);
 
         const leftCard = document.getElementById(leftIndex);
         const rightCard = document.getElementById(rightIndex);
 
-        console.log(leftCard, rightCard);
-
         const offset = rightCard.offsetLeft - leftCard.offsetLeft;
-
-        console.log(offset)
 
         leftCard.style.transform = `translate(${offset}px, 10px)`;
         
@@ -115,17 +109,25 @@ export default {
         await this.wait();
     },
 
-    separate : async function (pivot, arr) {
-        console.log(pivot, arr);
-        
-        const cards = document.getElementById('cards');
+    separate : async function (pivot, height, cards) {
+        console.log(cards, pivot);
 
-        for (let i = 0; i < cards.children.length; i++) {
-            if (i === pivot) continue;
-            cards.children[i].style.transform = `translateY(60px)`;
+        for (let i = 0; i < cards.children.length ; i++) {
+            // debugger;
+            const card = cards.children[i];
+            
+            if (parseInt(card.id) === pivot) {
+                card.setAttribute('height', height); // remove가 아니라 플래그를 달자
+            }
+
+            if (card.getAttribute('height') === null) { // 플래그가 달리지 않은 녀석만
+                card.style.top = height * 100 + "px";
+            }
         }
 
         await this.wait();
+
+        return cards;
     },
 
     select : function (node, color, timer) {
@@ -166,8 +168,7 @@ export default {
         });
     },
 
-
-    replace : function (node, index) { // currentBar, checked
+    replace : function (node, index) {
         return new Promise(async (resolve, reject) => {
             const currBar = document.getElementById(node);
             await this.disappear(currBar);
@@ -284,7 +285,7 @@ export default {
     },
 
     wait : async function (timeout) {
-        timeout = timeout ? timeout : 500;
+        timeout = timeout ? timeout : 300;
         
         return new Promise((resolve, reject) => {
             setTimeout(resolve, timeout);

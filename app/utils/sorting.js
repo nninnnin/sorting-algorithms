@@ -1,7 +1,5 @@
 export default {
     bubbleSort : function (arr) {
-        console.log(arr);
-
         const queue = [];
 
         for (let i = 0; i < arr.length - 1; i++) {
@@ -13,10 +11,8 @@ export default {
 
                 if (arr[j] > arr[j+1]) {
                     swap(j, j+1);
-                    console.log('swap')
                     operation.swapped = true;
                 } else {
-                    console.log('no swap')
                     operation.swapped = false;
                 }
 
@@ -24,15 +20,9 @@ export default {
                     operation.fixed = j+1;
                 }
 
-                console.log(operation.currentBar);
                 queue.push(operation);
             }
-
-            console.log(`뒤에서 ${i} 번째 ${arr[arr.length-i-1]}로 확정!`)
-            console.log(arr)
         }
-
-        console.log(`\n 버블소트 완료 => ${arr} \n\n`)
 
         function swap (index1, index2) {
             const temp = arr[index1];
@@ -40,13 +30,10 @@ export default {
             arr[index2] = temp;
         }
 
-        console.log(queue);
         return queue;
     },
 
-    insertionSort : function (arr) { // [5,8,6,4,3,2,10,1]
-        console.log(arr)
-
+    insertionSort : function (arr) {
         const queue = [];
 
         for (let i = 1; i < arr.length; i++) {
@@ -66,7 +53,6 @@ export default {
             const operation2 = [];
             operation2.currentBar = i;
 
-            // 알맞은 j의 위치를 찾아냈다면, 삽입!
             if (j !== i) {
                 const [temp] = arr.splice(i, 1);
                 arr.splice(j, 0, temp);
@@ -79,20 +65,14 @@ export default {
             
             operation2.fixed = i;
             queue.push(operation2);
-
-            console.log(arr);
         }
-
-        console.log(queue);
 
         return queue;
     },
 
-    quickSort : function (arr) { // [5, 8, 1, 7, 2, 3, 10, 4]
-        console.log('퀵소트 실행')
-        console.log(arr);
-
+    quickSort : function (arr) {
         const queue = [];
+        let partitionDepth = 0;
 
         function createTask (type, from, to) {
             return {
@@ -103,8 +83,6 @@ export default {
         }
 
         function partition (arr) {
-            console.log(arr);
-            // debugger;
             if (arr.length <= 1) {
                 return arr;
             }
@@ -120,9 +98,8 @@ export default {
             while (left < right) {
                 if (arr[right] <= arr[pivot] && arr[left] > arr[pivot]) {
                     swap(left, right, arr);
-                    queue.push(createTask("swap cards", left, right)); // flag는 그대로고 값(카드)만 바뀌어야
+                    queue.push(createTask("swap cards", left, right));
 
-                    console.log(arr);
                     left++;
                     right--;
 
@@ -152,24 +129,19 @@ export default {
             queue.push(createTask("remove left flag", left, null)); 
             queue.push(createTask("remove right flag", right, null));
             queue.push(createTask("swap cards", pivot, left));
-            queue.push(createTask("flag pivot", pivot, left));
             
             pivot = left;
-
-            queue.push(createTask("partitioned", pivot)); // 피벗 한번 깜빡
             
-            console.log('partition complete => ', arr); // 재귀 호출 직전, partition이 완료된 arr
-
+            queue.push(createTask("partitioned", pivot));
+            
             const leftPart = arr.slice(0, pivot);
             const rightPart = arr.slice(pivot + 1);
 
-            queue.push(createTask('separation', pivot, arr));
+            queue.push(createTask('separation', pivot, partitionDepth + 1));
 
-            console.log('parted!', leftPart, [arr[pivot]], rightPart);
-            const result = [...partition(leftPart), arr[pivot], ...partition(rightPart)];
-            console.log('merged!', result);
-            
-            return result;
+            partitionDepth++;
+
+            return [...partition(leftPart), arr[pivot], ...partition(rightPart)];
         }
 
         function swap (a, b, arr) {
@@ -178,10 +150,9 @@ export default {
             arr[b] = temp;
         }
         
-        const result = partition(arr);
-        console.log(result);
+        partition(arr);
 
-        console.log('큐입니다', queue);
+        console.log(queue);
         return queue;
     },
 
