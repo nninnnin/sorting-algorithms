@@ -90,48 +90,99 @@ export default {
 
     quickSort : function (arr) { // [5, 8, 1, 7, 2, 3, 10, 4]
         console.log('퀵소트 실행')
-        const pivot = arr.length - 1;
+        console.log(arr);
+
+        const queue = [];
+
+        function createTask (type, from, to) {
+            return {
+                type,
+                from,
+                to
+            }
+        }
 
         function partition (arr) {
-            // make partition `in place`!!
+            console.log(arr);
+            // debugger;
+            if (arr.length <= 1) {
+                return arr;
+            }
+            
+            let pivot = arr.length - 1;
             let left = 0;
-            let right = arr.length - 2;
+            let right = pivot - 1;
+
+            queue.push(createTask("flag pivot", null, pivot));
+            queue.push(createTask("flag left", null, left));
+            queue.push(createTask("flag right", null, right));
 
             while (left < right) {
-                // pivot과 작거나 같은 것들이 왼쪽에 오도록
                 if (arr[right] <= arr[pivot] && arr[left] > arr[pivot]) {
-                    swap(left, right);
+                    swap(left, right, arr);
+                    queue.push(createTask("swap cards", left, right)); // flag는 그대로고 값(카드)만 바뀌어야
+
+                    console.log(arr);
                     left++;
                     right--;
+
+                    queue.push(createTask("flag left", left - 1, left));
+                    queue.push(createTask("flag right", right + 1, right));
+
+                    continue;
                 }
 
                 if (arr[right] > arr[pivot]) {
                     right--;
+                    queue.push(createTask("flag right", right + 1, right));
                 }
-
+                
                 if (arr[left] <= arr[pivot]) {
                     left++;
+                    queue.push(createTask("flag left", left - 1, left));
                 }
             }
-
-            swap(left, pivot);
-
-            if (arr.length === 1) {
-                return arr;
-            } else {
-                return partition(arr);
+            
+            if (arr[left] <= arr[pivot]) {
+                left++;
+                queue.push(createTask("flag left", left - 1, left));
             }
+            swap(left, pivot, arr);
+            
+            queue.push(createTask("remove left flag", left, null)); 
+            queue.push(createTask("remove right flag", right, null));
+            queue.push(createTask("swap cards", pivot, left));
+            queue.push(createTask("flag pivot", pivot, left));
+            
+            pivot = left;
+
+            queue.push(createTask("partitioned", pivot)); // 피벗 한번 깜빡
+            
+            console.log('partition complete => ', arr); // 재귀 호출 직전, partition이 완료된 arr
+
+            const leftPart = arr.slice(0, pivot);
+            const rightPart = arr.slice(pivot + 1);
+
+            queue.push(createTask('separation', pivot, arr));
+
+            console.log('parted!', leftPart, [arr[pivot]], rightPart);
+            const result = [...partition(leftPart), arr[pivot], ...partition(rightPart)];
+            console.log('merged!', result);
+            
+            return result;
         }
 
-        partition(arr);
-
-        function swap (a, b) {
+        function swap (a, b, arr) {
             const temp = arr[a];
             arr[a] = arr[b];
             arr[b] = temp;
         }
+        
+        const result = partition(arr);
+        console.log(result);
 
-        return [];
+        console.log('큐입니다', queue);
+        return queue;
     },
 
     mergeSort : function () {

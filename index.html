@@ -22,14 +22,31 @@
     <button id="addButton" disabled> + </button>
 
     <br><br>
-
-    <input id="arrayDisplay" type="text" disabled>
-    <button id="visualizeButton">Visualize</button>
-    <button id="startButton" disabled>START SORTING</button>
+    
+    <button id="historyButton">history (latest 5)</button>
+    <div class="history disappear" id="history">
+    </div>
 
     <br><br>
 
-    <div id="visual-container">
+    <input id="arrayDisplay" type="text" disabled>
+    <button id="visualizeButton" disabled>create</button>
+    <button id="startButton" disabled>sort</button>
+
+    <br><br>
+
+    <div class="visual-container" id="visual-container">
+      <!-- test for quick sort -->
+      <!-- <div class="card diamond left" data-value="1"></div>
+      <div class="card clover" data-value="2"></div>
+      <div class="card spade" data-value="3"></div>
+      <div class="card" data-value="4"></div>
+      <div class="card heart" data-value="5"></div>
+      <div class="card" data-value="6"></div>
+      <div class="card" data-value="7"></div>
+      <div class="card" data-value="8"></div>
+      <div class="card right" data-value="9"></div>
+      <div class="card pivot" data-value="10"></div> -->
     </div>
   </div>
   <script src="./app/index.js"></script>

@@ -2,6 +2,7 @@
 import '../assets/styles/index.less';
 import sorting from './utils/sorting';
 import UIpainter from './utils/ui-painter';
+import { result } from 'lodash';
 
 const SORTING_ALGORITHMS = {
     'bubble' : sorting.bubbleSort,
@@ -11,7 +12,7 @@ const SORTING_ALGORITHMS = {
 };
 
 let sortingAlgorithm = 'bubble';
-const arr = [];
+let arr = [];
 let operationQueue = [];
 
 const buttons = document.getElementById('buttons');
@@ -20,6 +21,25 @@ const addButton = document.getElementById('addButton');
 const startButton = document.getElementById('startButton');
 const arrDisplay = document.getElementById('arrayDisplay');
 const visualizeButton = document.getElementById('visualizeButton');
+const historyButton = document.getElementById('historyButton');
+const history = document.getElementById('history');
+const container = document.getElementById('visual-container');
+
+
+Array.from(buttons.children).forEach((button) => {
+    button.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        sortingAlgorithm = e.target.id;
+        console.log(sortingAlgorithm);
+
+        Array.from(buttons.children).forEach((button) => {
+            button.classList.remove('selectedAlgorithm');
+        })
+
+        e.target.classList.add('selectedAlgorithm');
+    })
+});
 
 // validation
 userInput.addEventListener('keyup', (e) => {
@@ -35,6 +55,7 @@ userInput.addEventListener('keyup', (e) => {
             input.style.border = '1px solid black'
             addButton.disabled = true;
 
+            visualizeButton.disabled = false;
             return;
         }
     }
@@ -53,12 +74,42 @@ userInput.addEventListener('keyup', (e) => {
 addButton.addEventListener('click', (e) => {
     arr.push(parseInt(userInput.value));
     userInput.value = '';
+
+    visualizeButton.disabled = false;
 });
 
 visualizeButton.addEventListener('click', (e) => {
-    paintArray(arr);
+    switch (sortingAlgorithm) {
+        case 'bubble':
+            UIpainter.paint(arr);
+            break;
+        case 'insertion':
+            UIpainter.paint(arr);
+            break;
+        case 'quick':
+            UIpainter.createCards(arr);
+            break;
+        case 'merge':
+            break;
+    };
+    
+
+    let historyData = JSON.parse(localStorage.getItem('history'));
+    if (!historyData) historyData = [];
+
+    if (historyData.length > 4) {
+        historyData.shift();
+    }
+
+    historyData.push(arr);
+
+    localStorage.setItem('history', JSON.stringify(historyData));
+
+    if (history.children.length) history.removeChild(history.children[0]);
+    history.appendChild(renderHistoryButtons());
 
     startButton.disabled = false;
+    e.target.disabled = true;
 });
 
 startButton.addEventListener('click', (e) => {
@@ -68,29 +119,41 @@ startButton.addEventListener('click', (e) => {
         alert('알고리즘을 선택해주세요!');
         return;
     }
-
+    
     startSorting(arr);
 });
 
+historyButton.addEventListener('click', (e) => {
+    history.classList.toggle('disappear');
+});
 
-Array.from(buttons.children).forEach((button) => {
-    button.addEventListener('click', (e) => {
-        e.preventDefault();
-        
-        sortingAlgorithm = e.target.id;
-        console.log(sortingAlgorithm);
+history.appendChild(renderHistoryButtons());
 
-        Array.from(buttons.children).forEach((button) => {
-            button.classList.remove('selectedAlgorithm');
+function renderHistoryButtons() {
+    const buttons = document.createElement('div');
+
+    Array.from(JSON.parse(localStorage.getItem('history'))).forEach((item) => {
+        const button = document.createElement('div');
+
+        const el = document.createElement('button');
+        el.innerHTML = item;
+        el.addEventListener('click', (e) => {
+            const content = e.target.textContent.split(',').map((val) => parseInt(val));
+            arr = content;
+            arrDisplay.value = content;
+
+            visualizeButton.disabled = false;
         })
+        button.appendChild(el);
+        const br = document.createElement('br');
+        button.appendChild(br);
 
-        e.target.classList.add('selectedAlgorithm');
-    })
-})
+        buttons.appendChild(button);
+    });
 
-function paintArray (arr) {
-    UIpainter.paint(arr);
+    return buttons;
 }
+
 
 async function startSorting (arr) {
     const operations = SORTING_ALGORITHMS[sortingAlgorithm](arr);
@@ -124,15 +187,19 @@ async function visualizeBubbleSort (operationQueue) {
             await UIpainter.swap(operation.currentBar, operation.currentBar + 1);
         }
 
+        await UIpainter.select(operation.currentBar, 'grey');
+        await UIpainter.select(operation.currentBar + 1, 'grey', 1);
+
         if (operation.fixed) {
             await UIpainter.fix(operation.fixed);
         }
-
-        await UIpainter.select(operation.currentBar, 'grey');
-        await UIpainter.select(operation.currentBar + 1, 'grey', 1);
     }
+    
+    await UIpainter.fix(0);
 
-    UIpainter.fix(0);
+    for (let k = 0; k < arr.length; k++) {
+        await UIpainter.select(k, 'white', 100);
+    }
 }
 
 async function visualizeInsertionSort (operationQueue) {
@@ -171,17 +238,51 @@ async function visualizeInsertionSort (operationQueue) {
                 await UIpainter.fix(j, 50);
             }
         }
-        
-        if (i === operationQueue.length - 1) {
-            for (let k = 0; k < arr.length; k++) {
-                await UIpainter.select(k, 'white', 100);
-            }
-        }
+    }
+
+    for (let k = 0; k < arr.length; k++) {
+        await UIpainter.select(k, 'white', 100);
     }
 }
-async function visualizeQuickSort () {
 
+async function visualizeQuickSort (operationQueue) {
+    for (let i = 0; i < operationQueue.length; i++) {
+        const task = operationQueue[i];
+        await processVisualization(task);
+
+        await wait();
+    }
 }
-async function visualizeMergeSort () {
 
+async function visualizeMergeSort () {
+}
+
+async function wait (timeout) {
+    timeout = timeout ? timeout : 500;
+    
+    return new Promise((resolve, reject) => {
+        setTimeout(resolve, timeout);
+    });
+}
+
+async function processVisualization (task) {
+    console.log(task.type);
+
+    if (task.type === "flag pivot") {
+        await UIpainter.markFlag(task.from, task.to, 'pivot');
+    } else if (task.type === "flag left") {
+        await UIpainter.markFlag(task.from, task.to, 'left');
+    } else if (task.type === "flag right") {
+        await UIpainter.markFlag(task.from, task.to, 'right');
+    } else if (task.type === 'remove left flag') {
+        await UIpainter.markFlag(task.from, task.to, 'left');
+    } else if (task.type === 'remove right flag') {
+        await UIpainter.markFlag(task.from, task.to, 'right');
+    } else if (task.type === 'swap cards') {
+        await UIpainter.swapCards(task.from, task.to);
+    } else if (task.type === 'partitioned') {
+        await UIpainter.markFlag(task.from, null, 'pivot');
+    } else if (task.type === 'separation') {
+        await UIpainter.separate(task.from, task.to);
+    }
 }
