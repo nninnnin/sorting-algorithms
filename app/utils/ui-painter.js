@@ -11,12 +11,12 @@ export default {
         const container = document.getElementById('visual-container');
         const bars = document.createElement('div');
         bars.classList.add('bars');
-        bars.setAttribute('id', 'bars');
+        bars.id = 'bars';
 
         for (let i = 0; i < arr.length; i++) {
             const bar = document.createElement('div');
             bar.classList.add('bar');
-            bar.setAttribute('id', i);
+            bar.id = i;
             bar.setAttribute('data-value', arr[i]);
             bar.style.height = arr[i] * 20 + 'px';
             bar.style.order = i;
@@ -30,10 +30,8 @@ export default {
     createCards : function (arr) {
         const container = document.getElementById('visual-container');
         container.innerHTML = '';
-        const row = document.createElement('div');
-        row.className = 'row';
-        const col = document.createElement('col');
-        col.className = 'col';
+        const cards = document.createElement('div');
+        cards.id = 'cards';
 
         const CARD_SYMBOLS = {
             0 : 'diamond',
@@ -48,17 +46,17 @@ export default {
 
             card.classList.add('card');
             card.classList.add(`${CARD_SYMBOLS[randomNumber]}`);
-            card.setAttribute('id', index);
+            card.id = index;
 
             const content = document.createElement('div');
+            content.className = 'cardNumber'
             content.innerText = val;
 
             card.appendChild(content);
-            col.appendChild(card);
+            cards.appendChild(card);
         });
         
-        row.appendChild(col);
-        container.appendChild(row);
+        container.appendChild(cards);
     },
 
     markFlag : async function (remove, create, flagType) {
@@ -109,38 +107,60 @@ export default {
         await this.wait();
     },
 
-    separateCards : async function (pivot, targetDepth) {
-        const container = document.getElementById('visual-container');
-
-        const row = document.createElement('div');
-        row.className = 'row';
-        const col = document.createElement('div');
-        col.className = 'col';
-
-        let callDepth = 0;
-        function appendChildCols(htmlColl) {
-            for (let i = 0; i < 2; i++) {
-                const newCol = document.createElement('div');
-                newCol.className = 'col';
-
-                callDepth++;
-                if (callDepth < targetDepth) {
-                    htmlColl.appendChild(appendChildCols(newCol));
-                    callDepth--;
-                } else {
-                    newCol.textContent = `col${i+1}`;
-                    htmlColl.appendChild(newCol);
-                    callDepth--;
-                }
-            }
-
-            return htmlColl;
-        }
-
-        row.appendChild(appendChildCols(col));
-        container.appendChild(row);
+    separateCards : async function (pivot, height) {
+        const pivotCard = document.getElementById(pivot);
+        pivotCard.style.border = 'orangered 3px solid';
+        pivotCard.style.transform = 'none';
 
         await this.wait();
+
+        const leftPartition = document.createElement('div');
+        const rightPartition = document.createElement('div');
+        leftPartition.className = 'partition';
+        rightPartition.className = 'partition';
+        leftPartition.id = 'leftPartition';
+        rightPartition.id = 'rightPartition';
+        
+        const partitions = [leftPartition, rightPartition];
+        for (let i = 0; i < 2; i++) {
+            partitions[i].style.position = 'absolute';
+            partitions[i].style.top = 100 * height + 'px';
+            partitions[i].style.width = parseInt(500 / (height + 1)) + 'px';
+            partitions[i].textContent = i === 0 ? 'left' : 'right';
+        }
+
+        // leftPartition.style.left = `-${Math.floor(200 / height)}px`;
+        // rightPartition.style.right =  `${Math.floor(200 / height)}px`;
+
+        pivotCard.appendChild(leftPartition);
+        pivotCard.appendChild(rightPartition);
+
+        await this.wait();
+
+        const cards = pivotCard.parentElement.children;
+        const leftCards = document.createElement('div');
+        const rightCards = document.createElement('div');
+
+        console.log(cards);
+
+        const cardReference = Array.from(cards).map(card => card.id);
+
+        cardReference.forEach((id) => {
+            const card = document.getElementById(id);
+
+            card.style.transform = "none";
+
+            if (id < pivot) {
+                leftCards.appendChild(card);
+            } else if (id > pivot) {
+                rightCards.appendChild(card);
+            }
+        });
+
+        leftPartition.appendChild(leftCards);
+        rightPartition.appendChild(rightCards);
+
+        await this.wait(50000000);
     },
 
     select : function (node, color, timer) {
