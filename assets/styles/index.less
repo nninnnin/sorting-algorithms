@@ -52,12 +52,12 @@ button.selectedAlgorithm{
   min-height: 650px;
  
   display: flex;
-  justify-content: center;
+  flex-direction: column;
 }
 
 
 .bars {
-  display:flex;
+  display: flex;
   justify-content: center;
   align-items: flex-end;
 }
@@ -78,15 +78,32 @@ button.selectedAlgorithm{
   transition: 0.2s;
 }
 
-.cards {
+.row {
   position: relative;
   width:100%;
+  min-height:80px;
+
+  margin-top: 5px;
+
+  background-color: pink;
+
+  display:flex;
+  align-items: center;
+}
+.col {
+  flex:1;
+  margin: 0 5px;
+  background-color: skyblue;
+
+  display:flex;
+  justify-content: center;
 }
 
 .card {
   display:inline-block;
   position: relative;
-  top:100px;
+  // top:100px;
+  z-index:10;
 
   width:40px; height:60px;
   box-shadow: 1px 1px 4px black;

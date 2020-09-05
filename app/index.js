@@ -23,8 +23,6 @@ const arrDisplay = document.getElementById('arrayDisplay');
 const visualizeButton = document.getElementById('visualizeButton');
 const historyButton = document.getElementById('historyButton');
 const history = document.getElementById('history');
-const container = document.getElementById('visual-container');
-let cards;
 
 
 Array.from(buttons.children).forEach((button) => {
@@ -35,7 +33,7 @@ Array.from(buttons.children).forEach((button) => {
 
         Array.from(buttons.children).forEach((button) => {
             button.classList.remove('selectedAlgorithm');
-        })
+        });
 
         e.target.classList.add('selectedAlgorithm');
     })
@@ -86,8 +84,7 @@ visualizeButton.addEventListener('click', (e) => {
             UIpainter.paint(arr);
             break;
         case 'quick':
-            cards = UIpainter.createCards(arr);
-            console.log(cards);
+            UIpainter.createCards(arr);
             break;
         case 'merge':
             break;
@@ -279,6 +276,6 @@ async function processVisualization (task) {
     } else if (task.type === 'partitioned') {
         await UIpainter.markFlag(task.from, null, 'pivot');
     } else if (task.type === 'separation') {
-        cards = await UIpainter.separate(task.from, task.to, cards);
+        await UIpainter.separateCards(task.from, task.to);
     }
 }

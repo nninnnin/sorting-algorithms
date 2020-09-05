@@ -30,6 +30,10 @@ export default {
     createCards : function (arr) {
         const container = document.getElementById('visual-container');
         container.innerHTML = '';
+        const row = document.createElement('div');
+        row.className = 'row';
+        const col = document.createElement('col');
+        col.className = 'col';
 
         const CARD_SYMBOLS = {
             0 : 'diamond',
@@ -37,9 +41,6 @@ export default {
             2 : 'heart',
             3 : 'spade'
         };
-
-        const cards = document.createElement('div');
-        cards.setAttribute('id', 'cards');
 
         arr.forEach((val, index) => {
             const card = document.createElement('div');
@@ -53,12 +54,11 @@ export default {
             content.innerText = val;
 
             card.appendChild(content);
-            cards.appendChild(card);
+            col.appendChild(card);
         });
         
-        container.appendChild(cards);
-
-        return cards;
+        row.appendChild(col);
+        container.appendChild(row);
     },
 
     markFlag : async function (remove, create, flagType) {
@@ -109,25 +109,38 @@ export default {
         await this.wait();
     },
 
-    separate : async function (pivot, height, cards) {
-        console.log(cards, pivot);
+    separateCards : async function (pivot, targetDepth) {
+        const container = document.getElementById('visual-container');
 
-        for (let i = 0; i < cards.children.length ; i++) {
-            // debugger;
-            const card = cards.children[i];
-            
-            if (parseInt(card.id) === pivot) {
-                card.setAttribute('height', height); // remove가 아니라 플래그를 달자
+        const row = document.createElement('div');
+        row.className = 'row';
+        const col = document.createElement('div');
+        col.className = 'col';
+
+        let callDepth = 0;
+        function appendChildCols(htmlColl) {
+            for (let i = 0; i < 2; i++) {
+                const newCol = document.createElement('div');
+                newCol.className = 'col';
+
+                callDepth++;
+                if (callDepth < targetDepth) {
+                    htmlColl.appendChild(appendChildCols(newCol));
+                    callDepth--;
+                } else {
+                    newCol.textContent = `col${i+1}`;
+                    htmlColl.appendChild(newCol);
+                    callDepth--;
+                }
             }
 
-            if (card.getAttribute('height') === null) { // 플래그가 달리지 않은 녀석만
-                card.style.top = height * 100 + "px";
-            }
+            return htmlColl;
         }
 
-        await this.wait();
+        row.appendChild(appendChildCols(col));
+        container.appendChild(row);
 
-        return cards;
+        await this.wait();
     },
 
     select : function (node, color, timer) {
