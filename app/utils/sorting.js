@@ -83,9 +83,7 @@ export default {
         }
 
         function partition (arr) {
-            if (arr.length <= 1) {
-                return arr;
-            }
+            if (arr.length <= 1) return arr;
             
             let pivot = arr.length - 1;
             let left = 0;
@@ -124,11 +122,16 @@ export default {
                 left++;
                 queue.push(createTask("flag left", arr[left - 1], arr[left]));
             }
-            swap(left, pivot, arr);
-            
-            queue.push(createTask("swap cards", arr[pivot], arr[left]));
-            
-            pivot = left;
+
+            if (arr[left] > arr[pivot]) {
+                swap(left, pivot, arr);
+                queue.push(createTask("swap cards", arr[pivot], arr[left]));
+                
+                pivot = left;
+            } else {
+                queue.push(createTask("swap cards", arr[left], arr[left]));
+                queue.push(createTask("swap cards", arr[pivot], arr[pivot]));
+            }
             
             queue.push(createTask("partitioned", arr[pivot]));
             
@@ -159,7 +162,8 @@ export default {
         
         partition(arr);
 
-        console.log(queue);
+        queue.push({type : 'reconcile'});
+
         return queue;
     },
 

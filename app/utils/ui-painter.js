@@ -72,10 +72,8 @@ export default {
 
         await this.wait();
     },
-
+    
     swapCards : async function (cardA, cardB) {
-        if (cardA === cardB) return;
-
         const CardA = document.getElementById(cardA);
         const CardB = document.getElementById(cardB);
 
@@ -106,8 +104,6 @@ export default {
     },
 
     separateCards : async function (pivot, height, arr) {
-        console.log([...arguments]);
-
         const pivotCard = document.getElementById(pivot);
         pivotCard.style.border = 'orangered 3px solid';
         pivotCard.style.transform = 'none';
@@ -116,40 +112,54 @@ export default {
 
         const leftPartition = document.createElement('div');
         const rightPartition = document.createElement('div');
-        leftPartition.className = 'partition';
-        rightPartition.className = 'partition';
-        leftPartition.id = 'leftPartition';
-        rightPartition.id = 'rightPartition';
-        
         const partitions = [leftPartition, rightPartition];
-        for (let i = 0; i < 2; i++) {
-            const styles = partitions[i].style;
 
-            styles.position = 'absolute';
-            styles.display = 'flex';
-            styles.top = '100%';
+        for (let i = 0; i < 2; i++) {
+            partitions[i].className = 'partition';
+            partitions[i].style.top = '0px';
         }
 
-        await this.wait();
+        leftPartition.id = 'leftPartition';
+        rightPartition.id = 'rightPartition';
 
-        arr.forEach((value) => {
+        pivotCard.insertAdjacentElement('beforebegin', leftPartition);
+        pivotCard.insertAdjacentElement('afterend', rightPartition);
+        
+        arr.filter(card => card !== pivot).forEach((value) => {
             const card = document.getElementById(value);
             card.style.transform = 'none';
-
+            
             if (value < pivot) {
                 leftPartition.appendChild(card);
-            } else if (value > pivot) {
+            } else {
                 rightPartition.appendChild(card);
             }
         });
 
-        leftPartition.style.left = `-${leftPartition.children.length * 50}px`;
-        rightPartition.style.left =  `${pivotCard.offsetWidth}px`;
+        for (let i = 0; i < 2; i++) {
+            partitions[i].className = 'partition';
+            partitions[i].style.top = '100px';
+        }
 
-        pivotCard.appendChild(leftPartition);
-        pivotCard.appendChild(rightPartition);
+        pivotCard.style.border = 'none';
 
-        await this.wait(5000);
+        await this.wait(1500);
+    },
+
+    reconcile : async function () {
+        await this.wait();
+        
+        const allPartitions = document.getElementsByClassName('partition');
+        
+        for (let i = 0; i < allPartitions.length; i++) {
+            allPartitions[i].style.transition = '1s';
+            allPartitions[i].style.top = '0';
+        }
+        
+        await this.wait(1500);
+
+        const cards = document.getElementById('cards');
+        cards.style.border = '3px solid orangered'
     },
 
     select : function (node, color, timer) {

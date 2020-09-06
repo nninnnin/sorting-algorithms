@@ -259,17 +259,11 @@ async function wait (timeout) {
 }
 
 async function processVisualization (task) {
-    console.log(task);
-
     if (task.type === "flag pivot") {
         await UIpainter.markFlag(task.from, task.to, 'pivot');
     } else if (task.type === "flag left") {
         await UIpainter.markFlag(task.from, task.to, 'left');
     } else if (task.type === "flag right") {
-        await UIpainter.markFlag(task.from, task.to, 'right');
-    } else if (task.type === 'remove left flag') {
-        await UIpainter.markFlag(task.from, task.to, 'left');
-    } else if (task.type === 'remove right flag') {
         await UIpainter.markFlag(task.from, task.to, 'right');
     } else if (task.type === 'swap cards') {
         await UIpainter.swapCards(task.from, task.to);
@@ -277,5 +271,7 @@ async function processVisualization (task) {
         await UIpainter.markFlag(task.from, null, 'pivot');
     } else if (task.type === 'separation') {
         await UIpainter.separateCards(task.pivot, task.height, task.arr);
+    } else if (task.type === 'reconcile') {
+        await UIpainter.reconcile();
     }
 }
