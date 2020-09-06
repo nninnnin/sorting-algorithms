@@ -40,13 +40,13 @@ export default {
             3 : 'spade'
         };
 
-        arr.forEach((val, index) => {
+        arr.forEach((val) => {
             const card = document.createElement('div');
             const randomNumber = parseInt(4 * Math.random());
 
             card.classList.add('card');
             card.classList.add(`${CARD_SYMBOLS[randomNumber]}`);
-            card.id = index;
+            card.id = val;
 
             const content = document.createElement('div');
             content.className = 'cardNumber'
@@ -76,11 +76,11 @@ export default {
     swapCards : async function (cardA, cardB) {
         if (cardA === cardB) return;
 
-        const leftIndex = cardA > cardB ? cardB : cardA;
-        const rightIndex = cardA > cardB ? cardA : cardB;
+        const CardA = document.getElementById(cardA);
+        const CardB = document.getElementById(cardB);
 
-        const leftCard = document.getElementById(leftIndex);
-        const rightCard = document.getElementById(rightIndex);
+        const leftCard = CardA.offsetLeft < CardB.offsetLeft ? CardA : CardB;
+        const rightCard = CardA.offsetLeft > CardB.offsetLeft ? CardA : CardB;
 
         const offset = rightCard.offsetLeft - leftCard.offsetLeft;
 
@@ -95,19 +95,19 @@ export default {
         leftCard.style.transform = `translate(${offset}px, 0px)`;
         rightCard.style.transform = `translate(-${offset}px, 0px)`;
         
-        const temp = leftCard.id;
-        leftCard.id = rightCard.id;
-        rightCard.id = temp;
-
         await this.wait();
 
         this.markFlag(leftCard.id, null, 'left');
+        this.markFlag(leftCard.id, null, 'right');
+        this.markFlag(rightCard.id, null, 'left');
         this.markFlag(rightCard.id, null, 'right');
         
         await this.wait();
     },
 
-    separateCards : async function (pivot, height) {
+    separateCards : async function (pivot, height, arr) {
+        console.log([...arguments]);
+
         const pivotCard = document.getElementById(pivot);
         pivotCard.style.border = 'orangered 3px solid';
         pivotCard.style.transform = 'none';
@@ -123,44 +123,33 @@ export default {
         
         const partitions = [leftPartition, rightPartition];
         for (let i = 0; i < 2; i++) {
-            partitions[i].style.position = 'absolute';
-            partitions[i].style.top = 100 * height + 'px';
-            partitions[i].style.width = parseInt(500 / (height + 1)) + 'px';
-            partitions[i].textContent = i === 0 ? 'left' : 'right';
+            const styles = partitions[i].style;
+
+            styles.position = 'absolute';
+            styles.display = 'flex';
+            styles.top = '100%';
         }
 
-        // leftPartition.style.left = `-${Math.floor(200 / height)}px`;
-        // rightPartition.style.right =  `${Math.floor(200 / height)}px`;
+        await this.wait();
+
+        arr.forEach((value) => {
+            const card = document.getElementById(value);
+            card.style.transform = 'none';
+
+            if (value < pivot) {
+                leftPartition.appendChild(card);
+            } else if (value > pivot) {
+                rightPartition.appendChild(card);
+            }
+        });
+
+        leftPartition.style.left = `-${leftPartition.children.length * 50}px`;
+        rightPartition.style.left =  `${pivotCard.offsetWidth}px`;
 
         pivotCard.appendChild(leftPartition);
         pivotCard.appendChild(rightPartition);
 
-        await this.wait();
-
-        const cards = pivotCard.parentElement.children;
-        const leftCards = document.createElement('div');
-        const rightCards = document.createElement('div');
-
-        console.log(cards);
-
-        const cardReference = Array.from(cards).map(card => card.id);
-
-        cardReference.forEach((id) => {
-            const card = document.getElementById(id);
-
-            card.style.transform = "none";
-
-            if (id < pivot) {
-                leftCards.appendChild(card);
-            } else if (id > pivot) {
-                rightCards.appendChild(card);
-            }
-        });
-
-        leftPartition.appendChild(leftCards);
-        rightPartition.appendChild(rightCards);
-
-        await this.wait(50000000);
+        await this.wait(5000);
     },
 
     select : function (node, color, timer) {

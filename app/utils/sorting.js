@@ -91,57 +91,64 @@ export default {
             let left = 0;
             let right = pivot - 1;
 
-            queue.push(createTask("flag pivot", null, pivot));
-            queue.push(createTask("flag left", null, left));
-            queue.push(createTask("flag right", null, right));
+            queue.push(createTask("flag pivot", null, arr[pivot]));
+            queue.push(createTask("flag left", null, arr[left]));
+            queue.push(createTask("flag right", null, arr[right]));
 
             while (left < right) {
                 if (arr[right] <= arr[pivot] && arr[left] > arr[pivot]) {
                     swap(left, right, arr);
-                    queue.push(createTask("swap cards", left, right));
+                    queue.push(createTask("swap cards", arr[left], arr[right]));
 
                     left++;
                     right--;
 
-                    queue.push(createTask("flag left", left - 1, left));
-                    queue.push(createTask("flag right", right + 1, right));
+                    queue.push(createTask("flag left", arr[left - 1], arr[left]));
+                    queue.push(createTask("flag right", arr[right + 1], arr[right]));
 
                     continue;
                 }
 
                 if (arr[right] > arr[pivot]) {
                     right--;
-                    queue.push(createTask("flag right", right + 1, right));
+                    queue.push(createTask("flag right", arr[right + 1], arr[right]));
                 }
                 
                 if (arr[left] <= arr[pivot]) {
                     left++;
-                    queue.push(createTask("flag left", left - 1, left));
+                    queue.push(createTask("flag left", arr[left - 1], arr[left]));
                 }
             }
             
-            if (arr[left] <= arr[pivot]) {
+            if (left + 1 !== pivot && arr[left] <= arr[pivot]) {
                 left++;
-                queue.push(createTask("flag left", left - 1, left));
+                queue.push(createTask("flag left", arr[left - 1], arr[left]));
             }
             swap(left, pivot, arr);
             
-            queue.push(createTask("remove left flag", left, null)); 
-            queue.push(createTask("remove right flag", right, null));
-            queue.push(createTask("swap cards", pivot, left));
+            queue.push(createTask("swap cards", arr[pivot], arr[left]));
             
             pivot = left;
             
-            queue.push(createTask("partitioned", pivot));
+            queue.push(createTask("partitioned", arr[pivot]));
             
-            const leftPart = arr.slice(0, pivot);
-            const rightPart = arr.slice(pivot + 1);
-
-            queue.push(createTask('separation', pivot, partitionDepth + 1));
+            let leftPart = arr.slice(0, pivot);
+            let rightPart = arr.slice(pivot + 1);
 
             partitionDepth++;
-
-            return [...partition(leftPart), arr[pivot], ...partition(rightPart)];
+            
+            queue.push({
+                type: 'separation',
+                pivot : arr[pivot],
+                height : partitionDepth,
+                arr
+            });
+            
+            leftPart = partition(leftPart);
+            partitionDepth--;
+            rightPart = partition(rightPart);
+            
+            return [...leftPart, arr[pivot], ...rightPart];
         }
 
         function swap (a, b, arr) {

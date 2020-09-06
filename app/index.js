@@ -276,6 +276,6 @@ async function processVisualization (task) {
     } else if (task.type === 'partitioned') {
         await UIpainter.markFlag(task.from, null, 'pivot');
     } else if (task.type === 'separation') {
-        await UIpainter.separateCards(task.from, task.to);
+        await UIpainter.separateCards(task.pivot, task.height, task.arr);
     }
 }
