@@ -5,10 +5,16 @@ import UIpainter from './utils/ui-painter';
 import { result } from 'lodash';
 
 const SORTING_ALGORITHMS = {
-    'bubble' : sorting.bubbleSort,
-    'insertion' : sorting.insertionSort,
-    'quick' : sorting.quickSort,
-    'merge' : sorting.mergeSort,
+    bubble : sorting.bubbleSort,
+    insertion : sorting.insertionSort,
+    quick : sorting.quickSort,
+    merge : sorting.mergeSort,
+};
+
+const COLORS = {
+    DEFAULT_BAR_GR : 'grey',
+    SELECTED_BAR_YG : 'yellowgreen',
+    SELECTED_BAR_OR : 'orangered',
 };
 
 let sortingAlgorithm = 'bubble';
@@ -25,13 +31,13 @@ const historyButton = document.getElementById('historyButton');
 const history = document.getElementById('history');
 
 
-Array.from(buttons.children).forEach((button) => {
+Array.from(buttons.children).forEach((button, _, buttons) => {
     button.addEventListener('click', (e) => {
         e.preventDefault();
         
         sortingAlgorithm = e.target.id;
 
-        Array.from(buttons.children).forEach((button) => {
+        buttons.forEach((button) => {
             button.classList.remove('selectedAlgorithm');
         });
 
@@ -42,7 +48,9 @@ Array.from(buttons.children).forEach((button) => {
 userInput.addEventListener('keyup', (e) => {
     const input = e.target;
 
-    if (e.keyCode == 13) {
+    const KEYCODE_ENTER = 13;
+
+    if (e.keyCode == KEYCODE_ENTER) {
         if (addButton.disabled) {
             return;
         } else {
@@ -91,8 +99,7 @@ visualizeButton.addEventListener('click', (e) => {
     };
     
 
-    let historyData = JSON.parse(localStorage.getItem('history'));
-    if (!historyData) historyData = [];
+    const historyData = JSON.parse(localStorage.getItem('history')) || [];
 
     if (historyData.length > 4) {
         historyData.shift();
@@ -129,7 +136,7 @@ history.appendChild(renderHistoryButtons());
 function renderHistoryButtons() {
     const buttons = document.createElement('div');
 
-    Array.from(JSON.parse(localStorage.getItem('history'))).forEach((item) => {
+    JSON.parse(localStorage.getItem('history')).forEach((item) => {
         const button = document.createElement('div');
 
         const el = document.createElement('button');
@@ -142,6 +149,7 @@ function renderHistoryButtons() {
             visualizeButton.disabled = false;
         })
         button.appendChild(el);
+
         const br = document.createElement('br');
         button.appendChild(br);
 
@@ -176,15 +184,15 @@ async function visualizeBubbleSort (operationQueue) {
     for (let i = 0; i < operationQueue.length; i++) {
         const operation = operationQueue[i];
         
-        await UIpainter.select(operation.currentBar, 'yellowgreen');
-        await UIpainter.select(operation.currentBar + 1, 'yellowgreen', 1);
+        await UIpainter.select(operation.currentBar, COLORS.SELECTED_BAR_YG);
+        await UIpainter.select(operation.currentBar + 1, COLORS.SELECTED_BAR_YG, 1);
         
         if (operation.swapped) {
             await UIpainter.swap(operation.currentBar, operation.currentBar + 1);
         }
 
-        await UIpainter.select(operation.currentBar, 'grey');
-        await UIpainter.select(operation.currentBar + 1, 'grey', 1);
+        await UIpainter.select(operation.currentBar, COLORS.DEFAULT_BAR_GR);
+        await UIpainter.select(operation.currentBar + 1, COLORS.DEFAULT_BAR_GR, 1); TH
 
         if (operation.fixed) {
             await UIpainter.fix(operation.fixed);
@@ -205,27 +213,27 @@ async function visualizeInsertionSort (operationQueue) {
         const operation = operationQueue[i];
         const currentBar = operation.currentBar;
         
-        await UIpainter.select(currentBar, 'yellowgreen');
+        await UIpainter.select(currentBar, COLORS.SELECTED_BAR_YG);
         
         if (operation.hasOwnProperty('comparison')) {
             const comparison = operation.comparison;
-            await UIpainter.select(comparison, 'orangered', 50);
-            await UIpainter.select(comparison, 'grey', 700);
+            await UIpainter.select(comparison, COLORS.SELECTED_BAR_OR, 50);
+            await UIpainter.select(comparison, COLORS.SELECTED_BAR_OR, 700);
             checked = comparison;
         }
 
         if (operation.moved) {
             if (checked !== 0) {
-                await UIpainter.select(checked-1, 'orangered', 100);
-                await UIpainter.select(checked-1, 'grey', 750);
+                await UIpainter.select(checked-1, COLORS.SELECTED_BAR_OR, 100);
+                await UIpainter.select(checked-1, COLORS.DEFAULT_BAR_GR, 750);
             }
 
             await UIpainter.replace(currentBar, checked);
-            await UIpainter.select(checked, 'grey', 300);
+            await UIpainter.select(checked, COLORS.DEFAULT_BAR_GR, 300);
         }
 
         if (operation.hasOwnProperty('fixed')) {
-            await UIpainter.select(currentBar, 'grey', 300);
+            await UIpainter.select(currentBar, COLORS.DEFAULT_BAR_GR, 300);
 
             for (let j = 0; j <= operation.fixed; j++) {
                 await UIpainter.fix(j, 50);
@@ -240,8 +248,7 @@ async function visualizeInsertionSort (operationQueue) {
 
 async function visualizeQuickSort (operationQueue) {
     for (let i = 0; i < operationQueue.length; i++) {
-        const task = operationQueue[i];
-        await processVisualization(task);
+        await processVisualization(operationQueue[i]);
 
         await wait();
     }
@@ -250,7 +257,7 @@ async function visualizeQuickSort (operationQueue) {
 async function visualizeMergeSort () {
 }
 
-async function wait (timeout) {
+function wait (timeout) {
     timeout = timeout ? timeout : 300;
     
     return new Promise((resolve, reject) => {
@@ -259,19 +266,28 @@ async function wait (timeout) {
 }
 
 async function processVisualization (task) {
-    if (task.type === "flag pivot") {
-        await UIpainter.markFlag(task.from, task.to, 'pivot');
-    } else if (task.type === "flag left") {
-        await UIpainter.markFlag(task.from, task.to, 'left');
-    } else if (task.type === "flag right") {
-        await UIpainter.markFlag(task.from, task.to, 'right');
-    } else if (task.type === 'swap cards') {
-        await UIpainter.swapCards(task.from, task.to);
-    } else if (task.type === 'partitioned') {
-        await UIpainter.markFlag(task.from, null, 'pivot');
-    } else if (task.type === 'separation') {
-        await UIpainter.separateCards(task.pivot, task.height, task.arr);
-    } else if (task.type === 'reconcile') {
-        await UIpainter.reconcile();
+    switch (task.type) {
+        case 'flag pivot':
+            await UIpainter.markFlag(task.from, task.to, 'pivot');
+            break;
+        case 'flag left':
+            await UIpainter.markFlag(task.from, task.to, 'left');
+            break;
+        case 'flag right':
+            await UIpainter.markFlag(task.from, task.to, 'right');
+            break;
+        case 'swap cards':
+            await UIpainter.swapCards(task.from, task.to);
+            break;
+        case 'partitioned':
+            await UIpainter.markFlag(task.from, null, 'pivot');
+            break;
+        case 'separation':
+            await UIpainter.separateCards(task.pivot, task.height, task.arr);
+            break;
+        case 'reconcile':
+            await UIpainter.reconcile();
+            break;
     }
+    
 }

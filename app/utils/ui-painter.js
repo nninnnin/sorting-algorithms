@@ -1,9 +1,9 @@
 export default {
     PAIRS : {
-        'bubble' : 'bar',
-        'insertion' : 'bar',
-        'quick' : 'card',
-        'merge' : 'card'
+        bubble : 'bar',
+        insertion : 'bar',
+        quick : 'card',
+        merge : 'card'
     },
 
 
@@ -158,8 +158,8 @@ export default {
         
         await this.wait(1500);
 
-        const cards = document.getElementById('cards');
-        cards.style.border = '3px solid orangered'
+        const container = document.getElementById('visual-container');
+        container.style.border = '3px solid orangered'
     },
 
     select : function (node, color, timer) {

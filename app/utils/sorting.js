@@ -9,15 +9,15 @@ export default {
                 operation.id = i;
                 operation.currentBar = j;
 
-                if (arr[j] > arr[j+1]) {
-                    swap(j, j+1);
+                if (arr[j] > arr[j + 1]) {
+                    swap(j, j + 1);
                     operation.swapped = true;
                 } else {
                     operation.swapped = false;
                 }
 
-                if (j+1 === arr.length - i -1) {
-                    operation.fixed = j+1;
+                if (j + 1 === arr.length - i - 1) {
+                    operation.fixed = j + 1;
                 }
 
                 queue.push(operation);
@@ -39,7 +39,7 @@ export default {
         for (let i = 1; i < arr.length; i++) {
             let j = i;
 
-            while (j > 0 && arr[j-1] > arr[i]) {
+            while (j > 0 && arr[j - 1] > arr[i]) {
                 j--;
 
                 const innerOperation = [];
@@ -59,7 +59,7 @@ export default {
 
                 operation2.moved = true;
             } else {
-                operation2.comparison = i-1;
+                operation2.comparison = i - 1;
                 operation2.moved = false;
             }
             
@@ -167,7 +167,47 @@ export default {
         return queue;
     },
 
-    mergeSort : function () {
+    mergeSort : function (arr) {
+        const queue = [];
 
+        function partition(arr) {
+            if (arr.length === 1) return arr;
+
+            const medium = Math.ceil(arr.length / 2);
+            const leftPart = arr.slice(0, medium);
+            const rightPart = arr.slice(medium);
+
+            const sortedArr = merge(partition(leftPart), partition(rightPart));
+
+            console.log(sortedArr);
+
+            return sortedArr;
+        }
+
+        function merge (leftPart, rightPart) {
+            const mergedArr = new Array();
+
+            let i = 0;
+            let j = 0;
+
+            while (leftPart[i] !== undefined && rightPart[j] !== undefined) {
+                if (leftPart[i] < rightPart[j]) {
+                    mergedArr.push(leftPart[i]);
+                    i++;
+                } else {
+                    mergedArr.push(rightPart[j]);
+                    j++;
+                }
+            }
+
+            const restElements = leftPart[i] === undefined ? rightPart.slice(j) : leftPart.slice(i);
+
+            return [...mergedArr, ...restElements];
+        }
+
+        const partedArr = partition(arr);
+        
+
+        return queue;
     }
 }
