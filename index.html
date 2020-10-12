@@ -8,8 +8,35 @@
 <body>
   <div class="content">
     <h1>Visualize Sorting Algorithms</h1>
-    <img src="./assets/images/chicken.jpg" />
-    <p>README.md를 읽어보고 과제를 시작하세요.</p>
+
+    <div class="buttons" id="buttons">
+      <button id="bubble" class="selectedAlgorithm">Bubble</button>
+      <button id="insertion">Insertion</button>
+      <button id="quick">Quick</button>
+      <button id="merge">Merge</button>
+    </div>
+
+    <br>
+
+    <input type="text" id="userInput" placeholder="정수값을 입력하세요!" autofocus> <!-- TODO : validate input value! (only number) -->
+    <button id="addButton" disabled> + </button>
+
+    <br><br>
+    
+    <button id="historyButton">history (latest 5)</button>
+    <div class="history disappear" id="history">
+    </div>
+
+    <br><br>
+
+    <input id="arrayDisplay" type="text" disabled>
+    <button id="visualizeButton" disabled>create</button>
+    <button id="startButton" disabled>sort</button>
+
+    <br><br>
+
+    <div class="visual-container" id="visual-container">
+    </div>
   </div>
   <script src="./app/index.js"></script>
 </body>

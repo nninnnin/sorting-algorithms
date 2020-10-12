@@ -1,5 +1,18 @@
+@import (css) url('https://fonts.googleapis.com/css2?family=Grandstander:wght@600&display=swap');
+
 html, body {
   box-sizing: border-box;
+  font-family: 'Grandstander', cursive;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
 }
 
 *, *:before, *:after {
@@ -7,12 +20,206 @@ html, body {
 }
 
 .content {
-  max-width: 500px;
-  margin: 100px auto;
+  max-width: 600px;
+  margin: 70px auto;
   text-align: center;
 }
 
 img {
   width: 300px;
   height: 400px;
+}
+
+button, input:focus {
+  outline: none;
+}
+
+button.selectedAlgorithm{
+  border: 3px solid mediumblue;
+}
+
+.history {
+  margin: 0 auto;
+  margin-top: 1em;
+
+  button {
+    margin: 1px auto;
+  }
+}
+
+.visual-container {
+  border: 1px solid black;
+  min-height: 650px;
+ 
+  display: flex;
+  flex-direction: column;
+}
+
+
+.bars {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+.bar {
+  background-color: grey;
+  border: 3px solid black;
+  margin-left: 5px;
+  padding:0 1em;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &::before{
+    content: attr(data-value);
+  }
+
+  transition: 0.2s;
+}
+
+.partition {
+  position: relative;
+  color: black;
+  display: flex;
+
+  transition: 0.5s;
+}
+
+#cards{
+  position: relative;
+  display:flex;
+  margin: 50px auto;
+}
+
+.card {
+  display:inline-block;
+  position: relative;
+  z-index:100;
+
+  width:40px; height:60px;
+  background-color: #fff;
+  box-shadow: 1px 1px 4px black;
+  border-radius: 3px;
+
+  margin-left: 5px;
+
+  transition: 0.3s;
+
+  & > .cardNumber {
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  img {
+    position: absolute;
+    top: 5px;
+    left:5px;
+    width: 30%;
+    height: auto;
+  }
+
+  &.heart {
+    background: url(/assets/images/heart.png);
+    background-size: 35% auto;
+    background-repeat: no-repeat;
+    background-position: 15% 10%;
+  }
+  &.clover {
+    background: url(/assets/images/clover.png);
+    background-size: 35% auto;
+    background-repeat: no-repeat;
+    background-position: 15% 10%;
+  }
+  &.spade {
+    background: url(/assets/images/spade.png);
+    background-size: 35% auto;
+    background-repeat: no-repeat;
+    background-position: 15% 10%;
+  }
+  &.diamond {
+    background: url(/assets/images/diamond.png);
+    background-size: 35% auto;
+    background-repeat: no-repeat;
+    background-position: 15% 10%;
+  }
+
+  &.pivot{
+    &::after {
+      content: 'pivot';
+      position: absolute;
+      top:-20px;
+
+      display: flex;
+      justify-content: center;
+
+      animation: fadeIn 0.5s;
+    }
+    color: orangered;
+  }
+  &.left{
+    &::after {
+      content: 'L';
+      position: absolute;
+      left:5px;
+      top:-20px;
+
+      animation: fadeIn 0.5s;
+    }
+    color: mediumblue;
+  }
+  &.right{
+    &::before {
+      content: 'R';
+      position: absolute;
+      top:-20px;
+      left:26px;
+
+      animation: fadeIn 0.5s;
+    }
+    color: mediumblue;
+  }
+  &.fadeOut{
+    &::after {
+      animation: fadeOut 0.5s;
+      animation-fill-mode: forwards;
+    }
+  }
+}
+
+@keyframes fadeIn{
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut{
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.hidden {
+  opacity: 0;
+  transition: 0.5s;
+}
+.visible {
+  opacity: 1;
+  transition: 0.5s;
+}
+
+.appear {
+  display: block;
+  transition: 0.5s;
+}
+.disappear {
+  display: none;
+  transition: 0.5s;
 }
